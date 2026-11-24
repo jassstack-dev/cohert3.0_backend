@@ -26,14 +26,14 @@ export const registrController = async (req, res) => {
       password: hashPassword,
     });
 
-    const accessToken = createAccessToken({
-      userId: user._id,
-      role: user.role,
-    });
-    const refreshToken = createRefreshToken({
-      userId: user._id,
-      role: user.role,
-    });
+    const accessToken = createAccessToken(
+     user._id,
+    user.role,
+    );
+    const refreshToken = createRefreshToken(
+      user._id,
+      user.role,
+    );
 
     user.refreshToken = refreshToken;
     await user.save();
@@ -112,6 +112,7 @@ export const refreshTokenController = async (req, res) => {
 
     // Verify refresh token
     const decoded = compareRefreshToken(refreshToken);
+    
 
     if (!decoded) {
       return res.status(401).json({
@@ -139,15 +140,15 @@ export const refreshTokenController = async (req, res) => {
       });
     }
 
-    const accessToken = createAccessToken({
-      userId: user._id,
-      role: user.role
-    });
+    const accessToken = createAccessToken(
+     user._id,
+    user.role
+    );
 
-    const newRefreshToken = createRefreshToken({
-      userId: user._id,
-      role: user.role
-    })
+    const newRefreshToken = createRefreshToken(
+    user._id,
+      user.role
+    )
 
     await userModel.findByIdAndUpdate(user._id, {
       refreshToken : newRefreshToken
@@ -166,7 +167,7 @@ export const refreshTokenController = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      message: error.message,
+      message: 'error in the refresh token controller',
     });
   }
 };
