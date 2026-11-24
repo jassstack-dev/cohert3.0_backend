@@ -1,16 +1,16 @@
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
 
-export const createAccessToken = (userId) => {
-  const accessToken = jwt.sign({ userId }, config.ACCESS_TOKEN, {
+export const createAccessToken = (userId, role) => {
+  const accessToken = jwt.sign({ userId, role}, config.ACCESS_TOKEN, {
     expiresIn: "15m",
   });
 
   return accessToken;
 };
 
-export const createRefreshToken = (userId) => {
-  const refreshToken = jwt.sign({ userId }, config.REFRESH_TOKEN, {
+export const createRefreshToken = (userId, role) => {
+  const refreshToken = jwt.sign({ userId, role }, config.REFRESH_TOKEN, {
     expiresIn: "7d",
   });
 
@@ -29,3 +29,18 @@ export const compareRefreshToken = (token) => {
     return null;
   }
 };
+
+export const readGetMe = async (token)=>{
+  try {
+
+    const decoded = jwt.verify(token, config.ACCESS_TOKEN)
+
+  return decoded
+    
+  } catch (error) {
+    console.log('erro0r in the read accesstoken', error)
+    
+  }
+
+  
+}

@@ -26,8 +26,14 @@ export const registrController = async (req, res) => {
       password: hashPassword,
     });
 
-    const accessToken = createAccessToken(user._id);
-    const refreshToken = createRefreshToken(user._id);
+    const accessToken = createAccessToken({
+      userId: user._id,
+      role: user.role,
+    });
+    const refreshToken = createRefreshToken({
+      userId: user._id,
+      role: user.role,
+    });
 
     user.refreshToken = refreshToken;
     await user.save();
@@ -113,40 +119,81 @@ export const refreshTokenController = async (req, res) => {
       });
     }
 
-//     console.log("Decoded Token:", decoded);
-// console.log("Decoded ID:", decoded?.id);
-// console.log("User ID Type:", typeof decoded?.id);
+    const { userId, role } = decoded;
+
+
 
     // Find user using token payload
-    const user = await userModel.findById(decoded.userId);
-
-    if (!user) {
-      return res.status(401).json({
-        message: "User not found, please login again",
-      });
-    }
+    const user = await userModel.findById(userId);
 
 
-// console.log("Found User:", user);
 
     // Compare database token with cookie token
     if (user.refreshToken !== refreshToken) {
+      await userModel.findByIdAndUpdate(user._id, {
+        refreshToken: null,
+      });
+
       return res.status(401).json({
         message: "Invalid refresh token",
       });
     }
 
-    const accessToken = createAccessToken(user._id);
+    const accessToken = createAccessToken({
+      userId: user._id,
+      role: user.role
+    });
+
+    const newRefreshToken = createRefreshToken({
+      userId: user._id,
+      role: user.role
+    })
+
+    await userModel.findByIdAndUpdate(user._id, {
+      refreshToken : newRefreshToken
+    })
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly:true
+    })
+
+
 
     return res.status(200).json({
       success: true,
       message: "Access token generated",
       accessToken,
     });
-
   } catch (error) {
     return res.status(500).json({
       message: error.message,
     });
   }
 };
+
+export const getMeController = async (req,res)=>{
+  try {
+
+    const user = req.user
+
+    if(!user){
+      return res.status(400).json({
+        message: 'user not found'
+      })
+    }
+
+
+    res.status(200).json({
+      message: ' user found successfully', 
+      data: {
+        name: user.name,
+        email : user.email,
+        role:user.role
+      }
+    })
+    
+  } catch (error) {
+    consoel.log('erron in the get middleware', error)
+    
+  }
+}
