@@ -14,7 +14,7 @@ export const getMeMiddleware = async (req, res, next) => {
 
     const decoded = await readGetMe(accessToken);
 
-    console.log("Decoded:", decoded.userId);
+    // console.log("Decoded:", decoded.userId);
 
     if (!decoded) {
       return res.status(400).json({
@@ -24,7 +24,7 @@ export const getMeMiddleware = async (req, res, next) => {
 
     const { userId, role } = decoded;
 
-    console.log("decoded userId", userId);
+    // console.log("decoded userId", userId);
 
     const user = await userModel.findById(userId);
 
@@ -38,6 +38,9 @@ export const getMeMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.log("error in the get me middleware", error);
+    return res.status(500).json({
+      success:false,
+      message: 'error in the auth middleware'
+    })
   }
 };
