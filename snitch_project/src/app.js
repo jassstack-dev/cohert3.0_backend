@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import connectToDb from './config/db.js';
 import router from './routes/auth.routes.js';
 import productsRouter from './routes/products.routes.js';
+import cartRouter from './routes/cart.routes.js'
 
 
 await connectToDb()
@@ -14,6 +15,7 @@ app.use(cookieParser())
 // auth routes
 app.use('/api/auth', router)
 app.use('/api/products', productsRouter)
+app.use('/api/cart', cartRouter)
 
 
 export default app;

@@ -17,10 +17,10 @@ export const sellerMiddleware = (req, res, next) => {
 export const convertStringtoObject = (req,res, next)=>{
 
      try {
-        const { price, variety } = req.body;
+        const { price, variants } = req.body;
 
         req.body.price = JSON.parse(price);
-        req.body.variety = JSON.parse(variety)
+        req.body.variants = JSON.parse(variants)
 
         next();
     } catch (error) {

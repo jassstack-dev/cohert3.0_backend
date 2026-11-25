@@ -35,6 +35,7 @@ variants: [
   {
     size: {
       type: String,
+      enum: ["S", "M", "L", "XL", "XXL"],
       required: true,
     },
     stock: {
@@ -44,6 +45,11 @@ variants: [
     },
   },
 ],
+seller :{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'users',
+  required:true
+}
 });
 
 
