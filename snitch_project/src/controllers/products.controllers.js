@@ -33,6 +33,8 @@ export const createProductsController = async (req, res) => {
   });
 };
 
+
+// get controller 
 export const listedProductsController = async (req, res) => {
     try {
         const products = await productModel.find({});
@@ -50,3 +52,43 @@ export const listedProductsController = async (req, res) => {
         });
     }
 };
+
+
+// search controller 
+export const searchController = async (req,res)=>{
+  try {
+    console.log("Search controller hit");
+    
+      const {search} =  req.query
+      
+
+    if(!search){
+        return res.status(400).json({
+            success:false,
+            message: 'Search query is required'
+        })
+    }
+
+    const product = await productModel.find({
+        title: {
+            $regex : search,
+            $options : "i"
+        }
+    })
+
+    return res.status(200).json({
+            success: true,
+            message: "Products fetched successfully",
+            totalProducts: product.length,
+            product
+        });
+
+  } catch (error) {
+    return res.status(500).json({
+        success:false,
+        message:'internal sever error in the search controller'
+    })
+    
+  }
+
+}

@@ -26,14 +26,8 @@ export const registrController = async (req, res) => {
       password: hashPassword,
     });
 
-    const accessToken = createAccessToken(
-     user._id,
-    user.role,
-    );
-    const refreshToken = createRefreshToken(
-      user._id,
-      user.role,
-    );
+    const accessToken = createAccessToken(user._id, user.role);
+    const refreshToken = createRefreshToken(user._id, user.role);
 
     user.refreshToken = refreshToken;
     await user.save();
@@ -112,7 +106,6 @@ export const refreshTokenController = async (req, res) => {
 
     // Verify refresh token
     const decoded = compareRefreshToken(refreshToken);
-    
 
     if (!decoded) {
       return res.status(401).json({
@@ -122,12 +115,8 @@ export const refreshTokenController = async (req, res) => {
 
     const { userId, role } = decoded;
 
-
-
     // Find user using token payload
     const user = await userModel.findById(userId);
-
-
 
     // Compare database token with cookie token
     if (user.refreshToken !== refreshToken) {
@@ -140,25 +129,17 @@ export const refreshTokenController = async (req, res) => {
       });
     }
 
-    const accessToken = createAccessToken(
-     user._id,
-    user.role
-    );
+    const accessToken = createAccessToken(user._id, user.role);
 
-    const newRefreshToken = createRefreshToken(
-    user._id,
-      user.role
-    )
+    const newRefreshToken = createRefreshToken(user._id, user.role);
 
     await userModel.findByIdAndUpdate(user._id, {
-      refreshToken : newRefreshToken
-    })
+      refreshToken: newRefreshToken,
+    });
 
-    res.cookie('refreshToken', newRefreshToken, {
-      httpOnly:true
-    })
-
-
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+    });
 
     return res.status(200).json({
       success: true,
@@ -167,34 +148,30 @@ export const refreshTokenController = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      message: 'error in the refresh token controller',
+      message: "error in the refresh token controller",
     });
   }
 };
 
-export const getMeController = async (req,res)=>{
+export const getMeController = async (req, res) => {
   try {
+    const user = req.user;
 
-    const user = req.user
-
-    if(!user){
+    if (!user) {
       return res.status(400).json({
-        message: 'user not found'
-      })
+        message: "user not found",
+      });
     }
 
-
     res.status(200).json({
-      message: ' user found successfully', 
+      message: " user found successfully",
       data: {
         name: user.name,
-        email : user.email,
-        role:user.role
-      }
-    })
-    
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (error) {
-    consoel.log('erron in the get middleware', error)
-    
+    consoel.log("erron in the get middleware", error);
   }
-}
+};

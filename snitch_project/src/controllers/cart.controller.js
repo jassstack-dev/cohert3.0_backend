@@ -118,6 +118,29 @@ export const cartContoller = async (req, res) => {
   }
 };
 
+
+// get cart
+export const getCartController = async (req,res)=>{
+
+    const cart = await cartModel.find({})
+
+    if(!cart){
+        return res.status(400).json({
+            success:false,
+            message:'items not available in the cart'
+        })
+    }
+
+    return res.status(200).json({
+        success:true,
+        message:'cart found successfully',
+        cart
+    })
+
+
+    
+}
+
 /*
 @Delete /api/cart/:id
 */
@@ -140,7 +163,6 @@ export const clearCartController = async (req, res) => {
       message: "Cart deleted successfully",
       cart,
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -149,58 +171,105 @@ export const clearCartController = async (req, res) => {
   }
 };
 
+// increaseCartQuantiyController
 
-// decreaseCartQuantityController
+export const increaseCartQuantiyController = async (req, res) => {
+  try {
+    const { itemId } = req.params;
 
-export const decreaseCartQuantityController = async (req,res)=>{
-    const {itemId} = req.params
-   console.log(itemId);
-
-const cart = await cartModel.findOne({
-    "items._id": itemId
-});
-
-console.log(cart);
-    
+    const cart = await cartModel.findOne({
+       user: req.user.id
+    });
 
     if(!cart){
         return res.status(400).json({
-            success: false,
-            message :'item not found'
+            success:false,
+            message: 'cart not found '
         })
     }
 
-    const item = cart.items.find((item)=>{
-        return item._id.toString() === itemId
-    })
-
-    
-
-    if(item.quantity >1){
-        item.quantity -= 1
-    }else{
-        cart.items.pull({_id: itemId})
-
-     
-    }
+    const item = cart.items.find((val) => {
+      return val._id.toString() === itemId;
+    });
 
     if(!item){
-        return res.status(200).json({
+        return res.status(400).json({
             success:false,
-            message:'item not found'
+            message: 'items not available in the cart'
         })
     }
 
-    await cart.save()
+    if (item.quantity >= 1) {
+      item.quantity += 1;
+    }
 
+    await cart.save();
 
+    return res.status(200).json({
+      success: true,
+      message: "cart quantity added successfully",
+      item,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "internal server errro in increase cart quantity",
+    });
+  }
+};
 
+// decreaseCartQuantityController
+export const decreaseCartQuantityController = async (req, res) => {
+ try {
+
+     const { itemId } = req.params;
+  console.log(itemId);
+
+  const cart = await cartModel.findOne({
+     user: req.user.id
+  });
+
+  console.log(cart);
+
+  if (!cart) {
+    return res.status(400).json({
+      success: false,
+      message: "item not found",
+    });
+  }
+
+  const item = cart.items.find((item) => {
+    return item._id.toString() === itemId;
+  });
+
+  if (!item) {
+    return res.status(200).json({
+      success: false,
+      message: "item not available in the cart",
+    });
+  }
+
+  if (item.quantity > 1) {
+    item.quantity -= 1;
+  } else {
+    cart.items.pull({ _id: itemId });
+  }
+
+  
+
+  await cart.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Cart quantity updated successfully",
+    user: req.user.id,
+    item,
+  });
     
-
-    res.status(200).json({
-        success:true,
-        message:'Cart quantity updated successfully',
-        user: req.user.id,
-        item
+ } catch (error) {
+    return res.status(500).json({
+        success:false,
+        message: 'internal  server error in the decrease cart quantity'
     })
-}
+ }
+};
