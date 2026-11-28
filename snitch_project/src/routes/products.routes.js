@@ -6,7 +6,7 @@ import {
   convertStringtoObject,
   sellerMiddleware,
 } from "../middlewares/products.middleware.js";
-import { createProductsController, listedProductsController, searchController } from "../controllers/products.controllers.js";
+import { createProductsController, filterController, listedProductsController, searchController } from "../controllers/products.controllers.js";
 
 const productsRouter = express.Router();
 
@@ -31,5 +31,6 @@ productsRouter.post(
 // get product routes
 productsRouter.get('/',getMeMiddleware, listedProductsController)
 productsRouter.get('/search',getMeMiddleware, searchController)
+productsRouter.get('/filter',getMeMiddleware, filterController)
 
 export default productsRouter;

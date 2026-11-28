@@ -31,6 +31,20 @@ const productSchema = new mongoose.Schema({
     message: "Images must contain between 1 and 5 URLs",
   },
 },
+category: {
+  type: String,
+  required: true,
+  lowercase: true,
+  trim: true,
+  enum: [
+    "electronics",
+    "fashion",
+    "home",
+    "sports",
+    "beauty",
+    "books"
+  ]
+},
 variants: [
   {
     size: {
